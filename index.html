@@ -249,6 +249,9 @@ canvas.fx{position:absolute; inset:0; width:100%; height:100%; pointer-events:no
 html,body{height:100%;overflow:hidden}
 body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
 .app{height:100%;padding-top:calc(10px + env(safe-area-inset-top,0px))!important;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important}
+@media (display-mode: standalone){
+  .app{padding-top:calc(30px + env(safe-area-inset-top,0px))!important;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))!important}
+}
 </style>
 <script>
 (function(){
@@ -388,7 +391,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.2 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 2.3 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
