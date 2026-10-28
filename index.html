@@ -406,7 +406,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.8 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 2.9 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
@@ -451,10 +451,20 @@ const snapshot = () => ({ bank: (phase === 'play' || phase === 'insurance') ? ba
 function save(){ try { localStorage.setItem(STORE, JSON.stringify(snapshot())); } catch(e){} }
 
 /* ---------- shoe & count ---------- */
+/* unbiased random integer 0..n-1 from the device's secure random generator */
+function rand(n){
+  const c = window.crypto;
+  if (c && c.getRandomValues) {
+    const a = new Uint32Array(1), lim = Math.floor(4294967296 / n) * n;
+    let x; do { c.getRandomValues(a); x = a[0]; } while (x >= lim);
+    return x % n;
+  }
+  return Math.floor(Math.random() * n);
+}
 function newShoe(){
   shoe = [];
   for (let d = 0; d < settings.decks; d++) for (const s of SUITS) for (const r of RANKS) shoe.push({ r, s });
-  for (let i = shoe.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [shoe[i], shoe[j]] = [shoe[j], shoe[i]]; }
+  for (let i = shoe.length - 1; i > 0; i--) { const j = rand(i + 1); [shoe[i], shoe[j]] = [shoe[j], shoe[i]]; }
   cut = Math.floor(shoe.length * (settings.decks === 1 ? 0.35 : 0.25)); rc = 0; needShuffle = false; updateShoe();
 }
 const draw = () => { if (!shoe.length) newShoe(); return shoe.pop(); };
