@@ -37,10 +37,10 @@ html[data-back="onyx"]{--back:#1c1b19}
 html[data-back="green"]{--back:#145c46}
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0; background:var(--felt-deep); color:var(--cream); font-family:var(--body); -webkit-tap-highlight-color:transparent; overflow:hidden; transition:background .4s}
+body{margin:0; overflow-x:hidden; background:var(--felt-deep); color:var(--cream); font-family:var(--body); -webkit-tap-highlight-color:transparent; overflow:hidden; transition:background .4s}
 button{font:inherit; color:inherit}
 .app{
-  height:100%; max-width:780px; margin:0 auto; display:grid; grid-template-rows:auto 1fr auto;
+  height:100%; max-width:780px; margin:0 auto; display:grid; overflow-x:hidden; grid-template-rows:auto 1fr auto;
   padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px));
   padding-block:10px 12px;
 }
@@ -48,12 +48,12 @@ button{font:inherit; color:inherit}
 
 /* header */
 header{display:flex; align-items:center; justify-content:space-between; gap:10px; padding-bottom:10px}
-.brand{font-family:var(--display); font-weight:800; font-size:1.25rem; line-height:1; min-width:0}
+.brand{font-family:var(--display); font-weight:800; font-size:1.25rem; line-height:1; min-width:0; flex:1 1 auto; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
 .brand small{display:block; font-family:var(--body); font-weight:800; font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--brass); margin-top:4px; white-space:nowrap}
-.hud{display:flex; align-items:center; gap:8px}
+.hud{display:flex; align-items:center; gap:8px; flex:none}
 .bank{text-align:right; line-height:1.05; margin-right:4px}
 .bank .lbl{font-size:.58rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); font-weight:800}
-.bank .amt{font-family:var(--display); font-weight:700; font-size:1.45rem; color:var(--brass-hi); font-variant-numeric:tabular-nums}
+.bank .amt{font-family:var(--display); font-weight:700; font-size:clamp(1.1rem, 5.6vw, 1.45rem); white-space:nowrap; color:var(--brass-hi); font-variant-numeric:tabular-nums}
 .icon-btn{width:38px; height:38px; border-radius:50%; border:1px solid #ffffff22; background:#ffffff0d; display:grid; place-items:center; cursor:pointer; flex:none}
 .icon-btn svg{width:18px; height:18px}
 .icon-btn.off{opacity:.45}
@@ -398,7 +398,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.5 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 2.6 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
@@ -593,7 +593,7 @@ function animateBank(){
   shownBank = to;
   const step = now => {
     const k = dur ? Math.min(1, (now - t0) / dur) : 1, e = 1 - Math.pow(1 - k, 3);
-    $('bank').textContent = fmt(from + (to - from) * e);
+    $('bank').textContent = fmt(k < 1 ? Math.round(from + (to - from) * e) : to);
     if (k < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
