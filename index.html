@@ -155,10 +155,17 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 
 /* controls */
 .controls{padding-top:12px; display:grid; gap:10px}
-.group{display:grid; gap:10px; transition:opacity .2s}
+.group{display:grid; gap:10px}
 .stackctl{display:grid}
-.stackctl > .group{grid-area:1 / 1; align-self:end}
-.group.off{visibility:hidden; opacity:0; pointer-events:none}
+.stackctl > .group{grid-area:1 / 1; align-self:end; transition:visibility 0s}
+.group.off{visibility:hidden; pointer-events:none; transition:visibility 0s .22s}
+.group > .row > *{transition:transform .36s cubic-bezier(.2,.9,.3,1.18), opacity .28s ease, box-shadow .25s; transition-delay:calc(var(--i, 0) * 38ms + 160ms)}
+.group.off > .row > *{opacity:0; transform:translateY(18px) scale(.93); transition-duration:.16s; transition-delay:0s}
+.status-line{display:flex; align-items:center; justify-content:center; gap:7px; height:58px; font-weight:800; font-size:.76rem; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
+.status-line i{width:5px; height:5px; border-radius:50%; background:var(--brass); animation:dot 1.1s ease-in-out infinite}
+.status-line i:nth-of-type(2){animation-delay:.15s} .status-line i:nth-of-type(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25; transform:translateY(0)} 40%{opacity:1; transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.group > .row > *{transition:opacity .2s; transform:none !important} .status-line i{animation:none}}
 .row{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap}
 .chips{gap:10px}
 .btn{
@@ -327,6 +334,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
         <button class="btn primary" id="deal">Deal</button>
       </div>
     </div>
+    <div id="statusControls" class="group off"><div class="row"><div class="status-line"><span id="statusText">Dealer’s turn</span><i></i><i></i><i></i></div></div></div>
     <div id="insControls" class="group off">
       <div class="row">
         <button class="btn primary" id="insYes">Insurance</button>
@@ -398,7 +406,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.6 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 2.7 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
@@ -421,6 +429,7 @@ let settings = { ...DEFAULTS }, stats = freshStats(), awards = {}, history = [10
 let shoe = [], cut = 0, needShuffle = false, rc = 0;
 let bank = 1000, shownBank = 1000, bet = 0, baseBet = 25, ins = 0, startBank = 0;
 let phase = 'bet', busy = false, hands = [], active = 0, dealer = [], holeEl = null, holeShown = false;
+let turnOpen = false, statusText = '';
 
 const wait = ms => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 60) : ms * settings.speed));
 const today = () => new Date().toLocaleDateString('en-CA');
@@ -600,7 +609,9 @@ function animateBank(){
 }
 function ui(){
   const betting = phase === 'bet' || phase === 'done';
-  $('betControls').classList.toggle('off', !betting); $('playControls').classList.toggle('off', phase !== 'play'); $('insControls').classList.toggle('off', phase !== 'insurance');
+  const showPlay = phase === 'play' && turnOpen;
+  $('betControls').classList.toggle('off', !betting); $('playControls').classList.toggle('off', !showPlay); $('insControls').classList.toggle('off', phase !== 'insurance');
+  $('statusControls').classList.toggle('off', betting || showPlay || phase === 'insurance'); $('statusText').textContent = statusText;
   document.querySelectorAll('#chips .chip').forEach(b => b.disabled = busy || bet + (+b.dataset.v) > bank);
   const broke = betting && bank < 5 && bet === 0;
   const deal = $('deal');
@@ -608,7 +619,7 @@ function ui(){
   else if (phase === 'done' && bet > 0) { deal.innerHTML = `Deal again<small>${fmt(bet)}</small>`; deal.disabled = busy; }
   else { deal.textContent = 'Deal'; deal.disabled = busy || bet === 0; }
   $('clear').disabled = busy || bet === 0; $('max').disabled = busy || bank < 5;
-  const h = cur(), playing = phase === 'play' && !busy && h;
+  const h = cur(), playing = phase === 'play' && turnOpen && h;
   $('hit').disabled = $('stand').disabled = $('hintBtn').disabled = !playing;
   $('double').disabled = !playing || !canDouble(h);
   $('split').disabled = !playing || !canSplit(h);
@@ -711,7 +722,7 @@ async function deal(){
     clearTable();
   }
   if (needShuffle || shoe.length < cut) { newShoe(); toast('Cut card reached · fresh shoe'); await wait(500); }
-  startBank = bank; baseBet = bet; bank -= bet; animateBank();
+  startBank = bank; baseBet = bet; bank -= bet; animateBank(); turnOpen = false; statusText = 'Dealing';
   const h = newHand(bet); hands = [h]; active = 0; $('phands').appendChild(h.el); $('phands').dataset.n = 1;
   phase = 'play'; renderBet(); ui();
 
@@ -735,7 +746,7 @@ async function afterPeek(){
     if (ins) toast('No dealer blackjack · insurance lost');
   }
   if (isBJ(hands[0].cards)) { await reveal(); return settle(); }
-  busy = false; ui();
+  turnOpen = true; busy = false; ui();
 }
 async function reveal(){
   if (!holeEl) return;
@@ -789,6 +800,7 @@ async function advance(){
     busy = false; return ui();
   }
   const live = hands.some(h => !h.surrendered && total(h.cards).v <= 21);
+  turnOpen = false; statusText = live ? 'Dealer’s turn' : 'Revealing'; ui();
   await reveal();
   if (live) while (dealerHits()) { const c = draw(); dealer.push(c); place($('dHand'), c); countCard(c); setTotals(); await wait(560); }
   settle();
@@ -959,6 +971,7 @@ addEventListener('keydown', e => {
   else if (k === ' ' || k === 'enter') { e.preventDefault(); deal(); }
 });
 
+document.querySelectorAll('.stackctl > .group').forEach(g => [...g.querySelectorAll('.row > *')].forEach((el, i) => el.style.setProperty('--i', i)));
 function start(data){
   load(data); applySettings(); newShoe();
   shownBank = bank; $('bank').textContent = fmt(bank);
