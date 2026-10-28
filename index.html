@@ -186,12 +186,12 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 /* banner, toast, fx */
 .banner{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.6); opacity:0; pointer-events:none; z-index:5;
-  padding:14px 26px; border-radius:16px; text-align:center; white-space:nowrap; background:#000000c4; border:1px solid #d8a74b88; box-shadow:0 20px 50px #000000aa;
+  padding:10px 22px; border-radius:14px; text-align:center; white-space:nowrap; background:#000000d0; border:1px solid #d8a74b88; box-shadow:0 20px 50px #000000aa;
   transition:transform .35s cubic-bezier(.2,1.6,.4,1), opacity .2s; will-change:transform, opacity;
 }
 .banner.show{opacity:1; transform:translate(-50%,-50%) scale(1)}
-.banner h2{margin:0; font-family:var(--display); font-weight:800; font-size:clamp(1.6rem, 7vw, 2.3rem); line-height:1; color:var(--brass-hi)}
-.banner p{margin:6px 0 0; font-weight:800; font-size:.8rem; letter-spacing:.14em; text-transform:uppercase}
+.banner h2{margin:0; font-family:var(--display); font-weight:800; font-size:clamp(1.35rem, 6vw, 1.9rem); line-height:1; color:var(--brass-hi)}
+.banner p{margin:4px 0 0; font-weight:800; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase}
 .banner.lose h2{color:var(--lose)} .banner.push h2{color:var(--cream)}
 .toast{position:absolute; left:50%; bottom:14px; transform:translate(-50%, 8px); padding:7px 14px; border-radius:999px; background:#000000cc; font-size:.7rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--brass-hi); opacity:0; transition:opacity .25s, transform .25s; z-index:6; pointer-events:none; white-space:nowrap; max-width:92%; overflow:hidden; text-overflow:ellipsis}
 .toast.show{opacity:1; transform:translate(-50%, 0)}
@@ -406,7 +406,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.7 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 2.8 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
@@ -642,6 +642,13 @@ function ui(){
 /* ---------- banner, toast, confetti ---------- */
 function banner(title, sub, kind){
   const b = $('banner'); $('bTitle').textContent = title; $('bSub').textContent = sub;
+  const t = $('table').getBoundingClientRect();
+  const dc = [...document.querySelectorAll('#dHand .card')].map(c => c.getBoundingClientRect());
+  const pc = [...document.querySelectorAll('#phands .card')].map(c => c.getBoundingClientRect());
+  if (dc.length && pc.length) {
+    const gapTop = Math.max(...dc.map(r => r.bottom)), gapBottom = Math.min(...pc.map(r => r.top));
+    b.style.top = ((gapTop + gapBottom) / 2 - t.top) + 'px';
+  } else b.style.top = '';
   b.className = 'banner ' + kind; requestAnimationFrame(() => b.classList.add('show'));
 }
 const hideBanner = () => $('banner').classList.remove('show');
