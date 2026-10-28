@@ -65,7 +65,7 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
   box-shadow:inset 0 0 0 3px #00000055, inset 0 0 0 9px var(--rail), inset 0 0 0 10px #d8a74b66, inset 0 30px 80px #00000066, 0 20px 40px #00000066;
   display:grid; grid-template-rows:1fr auto 1fr; padding:22px 16px 26px; min-height:0; transition:background .4s;
 }
-.table::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.35; mix-blend-mode:overlay;
+.table::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.12; transform:translateZ(0);
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E")}
 .seat{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:0}
 .seat-head{display:flex; align-items:center; gap:8px; font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; font-weight:800; color:var(--muted)}
@@ -82,10 +82,11 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 .phands[data-n="3"],.phands[data-n="4"]{--cw:clamp(40px, 10vw, 68px)}
 .phands[data-n="4"]{gap:6px}
 .ph{display:flex; flex-direction:column; align-items:center; gap:6px; transition:transform .25s, opacity .25s; position:relative}
+.ph .card{transition:opacity .3s}
 .ph.active{transform:translateY(-6px)}
 .ph.active .ph-foot .total{box-shadow:0 0 0 2px var(--brass-hi)}
 .ph.idle{opacity:.55}
-.ph.lost .front{filter:brightness(.72) saturate(.8)}
+.ph.lost .card{opacity:.6}
 .ph-foot{display:flex; align-items:center; gap:6px}
 .ph-bet{font-size:.68rem; font-weight:800; color:var(--brass-hi); font-variant-numeric:tabular-nums}
 .ph-bet:empty{display:none}
@@ -110,19 +111,19 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
   position:absolute; top:14px; left:18px; z-index:2; border:none; cursor:pointer; border-radius:999px; padding:7px 12px 7px 8px;
   display:flex; align-items:center; gap:7px; font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
   background:linear-gradient(180deg, var(--brass-hi), var(--brass)); color:var(--ink); box-shadow:0 3px 0 #8a6421, 0 8px 18px #00000055;
-  animation:bob 2.4s ease-in-out infinite;
+  animation:bob 2.4s ease-in-out 3;
 }
 .bonus svg{width:16px; height:16px}
 @keyframes bob{50%{transform:translateY(-3px)}}
 
 /* cards */
-.card{width:var(--cw); aspect-ratio:5/7; perspective:700px; flex:none; position:relative}
-.inner{position:absolute; inset:0; transform-style:preserve-3d; transition:transform .45s cubic-bezier(.3,.7,.2,1)}
+.card{width:var(--cw); aspect-ratio:5/7; perspective:700px; flex:none; position:relative; will-change:transform; transform:translateZ(0); -webkit-transform:translateZ(0)}
+.inner{position:absolute; inset:0; transform-style:preserve-3d; -webkit-transform-style:preserve-3d; transition:transform .45s cubic-bezier(.3,.7,.2,1)}
 .card.down .inner{transform:rotateY(180deg)}
-.front,.back{position:absolute; inset:0; border-radius:calc(var(--cw) * .09); backface-visibility:hidden; -webkit-backface-visibility:hidden}
-.front{background:linear-gradient(160deg, #fffaf0, var(--cream)); color:var(--ink); box-shadow:0 1px 0 #ffffff inset, 0 6px 14px #0000005c, 0 1px 2px #00000066; transition:filter .3s}
+.front,.back{position:absolute; inset:0; border-radius:calc(var(--cw) * .09); backface-visibility:hidden; -webkit-backface-visibility:hidden; transform:translateZ(0.1px)}
+.front{background:linear-gradient(160deg, #fffaf0, var(--cream)); color:var(--ink); box-shadow:0 1px 0 #ffffff inset, 0 6px 14px #0000005c, 0 1px 2px #00000066}
 .front.red{color:var(--red)}
-.back{transform:rotateY(180deg); background:var(--back); box-shadow:inset 0 0 0 calc(var(--cw) * .05) #fbf7ee, inset 0 0 0 calc(var(--cw) * .085) var(--back), inset 0 0 0 calc(var(--cw) * .085 + 1px) #ffffff8c, 0 6px 14px #0000005c}
+.back{transform:rotateY(180deg) translateZ(0.1px); background:var(--back); box-shadow:inset 0 0 0 calc(var(--cw) * .05) #fbf7ee, inset 0 0 0 calc(var(--cw) * .085) var(--back), inset 0 0 0 calc(var(--cw) * .085 + 1px) #ffffff8c, 0 6px 14px #0000005c}
 .corner{position:absolute; display:flex; flex-direction:column; align-items:center; line-height:.9; font-family:var(--display); font-weight:700}
 .corner b{font-size:calc(var(--cw) * .26); font-weight:700}
 .corner span{font-size:calc(var(--cw) * .2)}
@@ -154,7 +155,10 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 
 /* controls */
 .controls{padding-top:12px; display:grid; gap:10px}
-.group{display:grid; gap:10px}
+.group{display:grid; gap:10px; transition:opacity .2s}
+.stackctl{display:grid}
+.stackctl > .group{grid-area:1 / 1; align-self:end}
+.group.off{visibility:hidden; opacity:0; pointer-events:none}
 .row{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap}
 .chips{gap:10px}
 .btn{
@@ -162,6 +166,7 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
   padding:14px 16px; flex:1 1 0; min-width:0; max-width:200px; background:#ffffff12; box-shadow:inset 0 0 0 1px #ffffff26;
   transition:transform .1s, opacity .2s, box-shadow .25s;
 }
+.btn:not(.sm):not(.ghost){height:58px; display:flex; flex-direction:column; align-items:center; justify-content:center}
 .btn:active{transform:translateY(1px)}
 .btn:disabled{opacity:.3; cursor:not-allowed}
 .btn.primary{background:linear-gradient(180deg, var(--brass-hi), var(--brass)); color:var(--ink); box-shadow:0 3px 0 #8a6421, 0 8px 18px #d8a74b33}
@@ -169,13 +174,13 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 .btn.sm{padding:9px 12px; font-size:.72rem; letter-spacing:.08em; border-radius:11px}
 .btn small{display:block; font-size:.6rem; letter-spacing:.1em; opacity:.7; margin-top:2px; text-transform:none}
 .btn.suggest{box-shadow:0 0 0 2px var(--brass-hi), 0 0 22px #f3d08a88 !important; transform:translateY(-2px)}
-.hint{font-size:.66rem; text-align:center; color:var(--muted); opacity:.75; letter-spacing:.05em; min-height:1.2em}
+.hint{font-size:.66rem; text-align:center; color:var(--muted); opacity:.75; letter-spacing:.05em; height:1.4em; line-height:1.4em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
 /* banner, toast, fx */
 .banner{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.6); opacity:0; pointer-events:none; z-index:5;
   padding:14px 26px; border-radius:16px; text-align:center; white-space:nowrap; background:#000000c4; border:1px solid #d8a74b88; box-shadow:0 20px 50px #000000aa;
-  transition:transform .35s cubic-bezier(.2,1.6,.4,1), opacity .2s;
+  transition:transform .35s cubic-bezier(.2,1.6,.4,1), opacity .2s; will-change:transform, opacity;
 }
 .banner.show{opacity:1; transform:translate(-50%,-50%) scale(1)}
 .banner h2{margin:0; font-family:var(--display); font-weight:800; font-size:clamp(1.6rem, 7vw, 2.3rem); line-height:1; color:var(--brass-hi)}
@@ -185,7 +190,7 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 .toast.show{opacity:1; transform:translate(-50%, 0)}
 .toast.award{background:linear-gradient(180deg, var(--brass-hi), var(--brass)); color:var(--ink)}
 .toast.coach{color:var(--cream); border:1px solid #ffffff33}
-canvas.fx{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:4}
+canvas.fx{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:4; transform:translateZ(0)}
 
 /* sheet */
 .sheet{position:fixed; inset:0; z-index:20; display:flex; align-items:flex-end; justify-content:center}
@@ -292,7 +297,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
     <div class="print" aria-hidden="true">
       <svg viewBox="0 0 440 70"><defs><path id="arc" d="M20,18 Q220,82 420,18"/></defs>
         <text font-size="19"><textPath href="#arc" startOffset="50%" text-anchor="middle" id="payText">BLACKJACK PAYS 3 TO 2</textPath></text></svg>
-      <div class="sub" id="ruleText">Dealer stands on all 17s · Insurance pays 2 to 1</div>
+      <div class="sub" id="ruleText">Dealer stands on all 17s</div>
     </div>
 
     <section class="seat" aria-label="Your hands">
@@ -307,6 +312,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
   </main>
 
   <div class="controls">
+    <div class="stackctl">
     <div id="betControls" class="group">
       <div class="row chips" id="chips">
         <button class="chip" data-v="5" aria-label="Add $5"><span>5</span></button>
@@ -321,13 +327,13 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
         <button class="btn primary" id="deal">Deal</button>
       </div>
     </div>
-    <div id="insControls" class="group" hidden>
+    <div id="insControls" class="group off">
       <div class="row">
         <button class="btn primary" id="insYes">Insurance</button>
         <button class="btn" id="insNo">No thanks<small>N</small></button>
       </div>
     </div>
-    <div id="playControls" class="group" hidden>
+    <div id="playControls" class="group off">
       <div class="row">
         <button class="btn" id="double" data-a="D">Double<small>D</small></button>
         <button class="btn primary" id="stand" data-a="S">Stand<small>S</small></button>
@@ -338,6 +344,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
         <button class="btn sm" id="surrender" data-a="R">Surrender</button>
         <button class="btn sm" id="hintBtn">Coach me</button>
       </div>
+    </div>
     </div>
     <div class="hint" id="hint"></div>
   </div>
@@ -391,7 +398,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.3 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 2.5 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
@@ -593,7 +600,7 @@ function animateBank(){
 }
 function ui(){
   const betting = phase === 'bet' || phase === 'done';
-  $('betControls').hidden = !betting; $('playControls').hidden = phase !== 'play'; $('insControls').hidden = phase !== 'insurance';
+  $('betControls').classList.toggle('off', !betting); $('playControls').classList.toggle('off', phase !== 'play'); $('insControls').classList.toggle('off', phase !== 'insurance');
   document.querySelectorAll('#chips .chip').forEach(b => b.disabled = busy || bet + (+b.dataset.v) > bank);
   const broke = betting && bank < 5 && bet === 0;
   const deal = $('deal');
@@ -637,8 +644,10 @@ function nextToast(){
 }
 function confetti(n = 90){
   if (reduce) return;
-  const cv = $('fx'), ctx = cv.getContext('2d'), r = cv.getBoundingClientRect(), dpr = devicePixelRatio || 1;
-  cv.width = r.width * dpr; cv.height = r.height * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cv = $('fx'), ctx = cv.getContext('2d'), r = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1);
+  const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   const cols = ['#f3d08a', '#d8a74b', '#f7f0e1', '#b3302a', '#1f7a4d'];
   const ps = Array.from({ length: n }, () => ({ x: r.width / 2, y: r.height / 2, vx: (Math.random() - .5) * 12, vy: -Math.random() * 10 - 3,
     s: 4 + Math.random() * 5, a: Math.random() * 6, va: (Math.random() - .5) * .4, c: cols[Math.random() * cols.length | 0] }));
@@ -660,7 +669,6 @@ const AWARDS = [
   { id:'double', m:'×2', name:'Double Trouble', desc:'Win a hand you doubled down on.', test:x => x.hands.some(h => h.doubled && h.result === 'Win') },
   { id:'split', m:'⟂', name:'Split Decision', desc:'Win every hand of a split.', test:x => x.hands.length > 1 && x.hands.every(h => h.result === 'Win') },
   { id:'charlie', m:'5♣', name:'Five-Card Charlie', desc:'Win holding five or more cards.', test:x => x.hands.some(h => h.cards.length >= 5 && h.result === 'Win') },
-  { id:'covered', m:'☂', name:'Covered', desc:'Collect on an insurance bet.', test:x => x.ins > 0 && x.dbj },
   { id:'roller', m:'$', name:'High Roller', desc:'Have $1,000 or more in play in one round.', test:x => x.staked >= 1000 },
   { id:'book', m:'✓', name:'By the Book', desc:'Make 25 basic-strategy plays in a row.', test:() => stats.run >= 25 },
   { id:'comeback', m:'↺', name:'Comeback Kid', desc:'Win a round when you started it with $100 or less.', test:x => x.net > 0 && x.startBank <= 100 },
@@ -712,7 +720,6 @@ async function deal(){
   c = draw(); h.cards.push(c); place(h.cardsEl, c); countCard(c); setTotals(); await wait(300);
   c = draw(); dealer.push(c); holeEl = place($('dHand'), c, true); await wait(380);
 
-  if (val(dealer[0]) === 11 && bank >= bet / 2) { phase = 'insurance'; busy = false; renderBet(); ui(); return; }
   afterPeek();
 }
 async function insurance(take){
@@ -903,7 +910,7 @@ function applySettings(){
   document.documentElement.dataset.back = settings.back;
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--felt-deep').trim());
   $('payText').textContent = settings.payout === 1.5 ? 'BLACKJACK PAYS 3 TO 2' : 'BLACKJACK PAYS 6 TO 5';
-  $('ruleText').innerHTML = (settings.h17 ? 'Dealer hits soft 17' : 'Dealer stands on all 17s') + ' <span class="ins-rule">· Insurance pays 2 to 1</span>';
+  $('ruleText').innerHTML = (settings.h17 ? 'Dealer hits soft 17' : 'Dealer stands on all 17s') + '';
   updateShoe(); ui();
 }
 function setSetting(k, raw){
