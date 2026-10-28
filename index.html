@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Blackjack">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <style>:root{color-scheme:dark}body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Brass Rail Blackjack</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -36,6 +36,9 @@ html[data-back="navy"]{--back:#1d3a6e}
 html[data-back="onyx"]{--back:#1c1b19}
 html[data-back="green"]{--back:#145c46}
 *{box-sizing:border-box}
+html,body{touch-action:manipulation; overscroll-behavior:none; -webkit-text-size-adjust:100%}
+.app, .app *{touch-action:manipulation; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none}
+.panel{touch-action:pan-y; overscroll-behavior:contain}
 html,body{height:100%}
 body{margin:0; overflow-x:hidden; background:var(--felt-deep); color:var(--cream); font-family:var(--body); -webkit-tap-highlight-color:transparent; overflow:hidden; transition:background .4s}
 button{font:inherit; color:inherit}
@@ -406,7 +409,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 2.9 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 3.0 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · M menu</p>
     </div>
   </div>
 </div>
@@ -989,6 +992,12 @@ addEventListener('keydown', e => {
 });
 
 document.querySelectorAll('.stackctl > .group').forEach(g => [...g.querySelectorAll('.row > *')].forEach((el, i) => el.style.setProperty('--i', i)));
+/* lock zoom and stray screen movement on phones */
+['gesturestart','gesturechange','gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive:false }));
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 || !e.target.closest('.panel')) e.preventDefault(); }, { passive:false });
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => { const now = Date.now(); if (now - lastTouchEnd < 320 && !e.target.closest('button, input, .panel')) e.preventDefault(); lastTouchEnd = now; }, { passive:false });
+document.addEventListener('dblclick', e => e.preventDefault(), { passive:false });
 function start(data){
   load(data); applySettings(); newShoe();
   shownBank = bank; $('bank').textContent = fmt(bank);
