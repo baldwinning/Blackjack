@@ -448,7 +448,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 3.2 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · 1–3 hands · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 3.3 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · 1–3 hands · M menu</p>
     </div>
   </div>
 </div>
@@ -482,7 +482,7 @@ function load(d){
   try { s = JSON.parse(localStorage.getItem(STORE) || 'null'); if (!s) { const old = JSON.parse(localStorage.getItem('brassrail') || 'null'); if (old) s = { bank: old.bank, baseBet: old.baseBet }; } } catch(e){}
   if (d && typeof d.bank === 'number') s = d;
   if (s) {
-    if (typeof s.bank === 'number' && s.bank >= 0) bank = s.bank;
+    if (typeof s.bank === 'number' && s.bank >= 0) bank = s.bank % 5 ? Math.round(s.bank / 5) * 5 : s.bank;
     settings = { ...DEFAULTS, ...(s.settings || {}) };
     stats = { ...freshStats(), ...(s.stats || {}) };
     awards = s.awards || {}; history = Array.isArray(s.history) && s.history.length ? s.history : [bank];
@@ -897,6 +897,8 @@ async function advance(){
   if (live) while (dealerHits()) { const c = draw(); dealer.push(c); place($('dHand'), c); countCard(c); setTotals(); await wait(560); }
   settle();
 }
+/* payouts are paid in $5 chips: round to the nearest $5, halves round up */
+const round5 = x => Math.round(x / 5) * 5;
 function settle(){
   setTotals();
   const d = total(dealer).v, dbj = isBJ(dealer), single = hands.length === 1;
@@ -904,9 +906,9 @@ function settle(){
   for (const h of hands) {
     const p = total(h.cards).v, pbj = isNatural(h);
     let r, ret = 0;
-    if (h.surrendered) { r = 'Surrender'; ret = h.bet / 2; }
+    if (h.surrendered) { r = 'Surrender'; ret = round5(h.bet / 2); }
     else if (p > 21) r = 'Bust';
-    else if (pbj && !dbj) { r = 'Blackjack'; ret = h.bet * (1 + settings.payout); }
+    else if (pbj && !dbj) { r = 'Blackjack'; ret = h.bet + round5(h.bet * settings.payout); }
     else if (dbj && !pbj) r = 'Lose';
     else if (pbj && dbj) { r = 'Push'; ret = h.bet; }
     else if (d > 21 || p > d) { r = 'Win'; ret = h.bet * 2; }
