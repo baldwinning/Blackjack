@@ -157,7 +157,21 @@ header{display:flex; align-items:center; justify-content:space-between; gap:10px
 .chip::after{content:""; position:absolute; inset:17%; border-radius:50%; border:1.5px dashed #ffffff88}
 .chip:active{transform:translateY(2px) scale(.96)}
 .chip:disabled{opacity:.3; cursor:not-allowed; filter:grayscale(.6)}
-.chip[data-v="5"]{--c:#b3302a} .chip[data-v="25"]{--c:#1f7a4d} .chip[data-v="100"]{--c:#1d1c1a} .chip[data-v="500"]{--c:#6b3fa0} .chip[data-v="1000"]{--c:#c48a1c}
+.chip[data-v="5"]{--c:#b3302a} .chip[data-v="25"]{--c:#1f7a4d} .chip[data-v="100"]{--c:#1d1c1a} .chip[data-v="500"]{--c:#6b3fa0} .chip[data-v="1000"]{--c:#c48a1c} .chip[data-v="5000"]{--c:#1f5fa0}
+.buy-panel{max-width:440px; text-align:center; padding-top:18px}
+.buy-panel h3{margin:4px 0 4px; font-size:1.5rem}
+.buy-panel .lead{margin:0 0 18px; font-size:.82rem; color:var(--muted)}
+.buy-opts{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px}
+.buy{display:flex; flex-direction:column; align-items:center; gap:10px; padding:16px 6px 14px; border-radius:16px; border:1px solid #ffffff1f; background:#ffffff0a; cursor:pointer; transition:transform .12s, background .2s, border-color .2s}
+.buy:hover{background:#ffffff14; border-color:#d8a74b88}
+.buy:active{transform:scale(.97)}
+.buy .pile{position:relative; width:58px; height:68px}
+.buy .pile .chip{position:absolute; left:0; width:58px; height:58px; cursor:inherit; pointer-events:none; font-size:.72rem; display:grid; place-items:center}
+.buy b{font-family:var(--display); font-size:1.3rem; font-weight:700; color:var(--brass-hi); font-variant-numeric:tabular-nums}
+.buy > span{font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.buy.best{border-color:#d8a74b99; background:#d8a74b14}
+.buy-later{margin-top:14px; max-width:none; width:100%}
+.set .btn.sm{flex:0 0 auto}
 .chip span{position:relative; z-index:1; text-shadow:0 1px 1px #00000088}
 
 /* controls */
@@ -368,6 +382,19 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
   </div>
 </div>
 
+<div class="sheet" id="buyin" hidden>
+  <div class="scrim" id="buyScrim"></div>
+  <div class="panel buy-panel" role="dialog" aria-modal="true" aria-labelledby="buyTitle">
+    <h3 id="buyTitle">Buy in</h3>
+    <p class="lead" id="buyLead">Pick how many chips to add to your bankroll.</p>
+    <div class="buy-opts">
+      <button class="buy" data-v="500"><div class="pile"><div class="chip" data-v="500" style="top:10px"></div><div class="chip" data-v="500" style="top:5px"></div><div class="chip" data-v="500" style="top:0"><span>500</span></div></div><b>$500</b><span>Casual</span></button>
+      <button class="buy best" data-v="1000"><div class="pile"><div class="chip" data-v="1000" style="top:10px"></div><div class="chip" data-v="1000" style="top:5px"></div><div class="chip" data-v="1000" style="top:0"><span>1K</span></div></div><b>$1,000</b><span>Standard</span></button>
+      <button class="buy" data-v="5000"><div class="pile"><div class="chip" data-v="5000" style="top:10px"></div><div class="chip" data-v="5000" style="top:5px"></div><div class="chip" data-v="5000" style="top:0"><span>5K</span></div></div><b>$5,000</b><span>High roller</span></button>
+    </div>
+    <button class="btn ghost buy-later" id="buyCancel">Not now</button>
+  </div>
+</div>
 <div class="sheet" id="sheet" hidden>
   <div class="scrim" id="scrim"></div>
   <div class="panel" role="dialog" aria-modal="true" aria-label="Menu">
@@ -382,6 +409,9 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
     <div id="tab-stats"></div>
     <div id="tab-awards" hidden></div>
     <div id="tab-settings" hidden>
+      <h3>Bankroll</h3>
+      <div class="set"><div><b>Buy in</b><span id="buyNote">Add $500, $1,000 or $5,000 in chips</span></div>
+        <button class="btn sm" id="buyOpen">Buy chips</button></div>
       <h3>House rules</h3>
       <div class="set"><div><b>Decks in the shoe</b><span>Fewer decks favor the player</span></div>
         <div class="seg" data-key="decks"><button data-val="1">1</button><button data-val="2">2</button><button data-val="6">6</button><button data-val="8">8</button></div></div>
@@ -418,7 +448,7 @@ body{height:100vh;height:100dvh;height:var(--app-h,100dvh);background:#08211f}
       <div class="set"><div><b>Sound</b></div><button class="tog" role="switch" data-key="sound" aria-label="Sound"></button></div>
       <div class="set"><div><b>Vibration</b><span>On phones that support it</span></div><button class="tog" role="switch" data-key="haptics" aria-label="Vibration"></button></div>
       <button class="btn danger" id="reset">Reset bankroll, stats &amp; awards</button>
-      <p class="about">Brass Rail Blackjack · version 3.1 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · 1–3 hands · M menu</p>
+      <p class="about">Brass Rail Blackjack · version 3.2 · play money only, no ads, no tracking. Your progress is saved on this device.<br>Keys: H hit · S stand · D double · P split · R surrender · C coach · Space deal · 1–3 hands · M menu</p>
     </div>
   </div>
 </div>
@@ -663,7 +693,7 @@ function ui(){
   $('seats').textContent = seats === 1 ? '1 hand' : seats + ' hands'; $('seats').disabled = busy;
   const broke = betting && bank < 5 && bet === 0;
   const deal = $('deal');
-  if (broke) { deal.textContent = 'Refill ' + fmt(1000); deal.disabled = busy; }
+  if (broke) { deal.textContent = 'Buy in'; deal.disabled = busy; }
   else if (phase === 'done' && bet > 0) { deal.innerHTML = `Deal again<small>${seats > 1 ? seats + ' × ' : ''}${fmt(bet)}</small>`; deal.disabled = busy; }
   else { deal.textContent = 'Deal'; deal.disabled = busy || bet === 0; }
   $('clear').disabled = busy || bet === 0; $('max').disabled = busy || bank < 5 * seats;
@@ -679,7 +709,7 @@ function ui(){
     x.el.classList.toggle('idle', hands.length > 1 && showPlay && i !== active);
   });
   let hint = '';
-  if (betting) hint = broke ? 'Out of chips. Refill and keep playing.' : `Tap chips to bet · Record ${stats.w}–${stats.l}–${stats.p}`;
+  if (betting) hint = broke ? 'Out of chips. Buy in to keep playing.' : `Tap chips to bet · Record ${stats.w}–${stats.l}–${stats.p}`;
   else if (phase === 'insurance') hint = 'Dealer shows an ace. Insure against blackjack?';
   else if (h && hands.length > 1) hint = `Playing hand ${active + 1} of ${hands.length}`;
   $('hint').textContent = hint;
@@ -769,7 +799,7 @@ function clearTable(){
 async function deal(){
   audio();
   if (busy) return;
-  if (phase !== 'play' && bank < 5 && bet === 0) { bank = 1000; stats.refills++; animateBank(); bet = 25; renderBet(); save(); ui(); toast('Bankroll refilled'); return; }
+  if (phase !== 'play' && bank < 5 && bet === 0) { openBuyIn('broke'); return; }
   const seats = settings.seats;
   if (bet * seats > bank) bet = Math.floor(bank / seats / 5) * 5;
   if (!bet) { if (bank >= 5) toast(`Not enough chips for ${seats} hands`); renderBet(); return ui(); }
@@ -944,7 +974,7 @@ function renderStats(){
   const pct = (a, b) => b ? Math.round(a / b * 100) + '%' : '—';
   const tiles = [
     ['Rounds played', stats.hands.toLocaleString()], ['Win rate', pct(stats.w, stats.w + stats.l)],
-    ['Record W–L–P', `${stats.w}–${stats.l}–${stats.p}`], ['Blackjacks', stats.bj],
+    ['Net vs. buy-ins', (n => (n > 0 ? '+' : '') + fmt(n))(bank - buyins())], ['Blackjacks', stats.bj],
     ['Biggest win', stats.biggest > 0 ? fmt(stats.biggest) : '—', true], ['Best streak', stats.bestStreak > 0 ? stats.bestStreak + ' wins' : '—'],
     ['Peak bankroll', fmt(stats.peak), true], ['Strategy accuracy', pct(stats.correct, stats.decisions)],
   ];
@@ -999,8 +1029,31 @@ function reset(){
   if (!resetArmed) { b.textContent = 'Tap again to reset everything'; resetArmed = setTimeout(() => { resetArmed = 0; b.textContent = 'Reset bankroll, stats & awards'; }, 3000); return; }
   clearTimeout(resetArmed); resetArmed = 0; b.textContent = 'Reset bankroll, stats & awards';
   if (busy) return;
-  clearTable(); bank = 1000; stats = freshStats(); awards = {}; history = [1000]; bet = 25; baseBet = 25;
-  newShoe(); animateBank(); renderBet(); renderStats(); renderAwards(); save(); ui(); toast('Fresh start · $1,000');
+  clearTable(); bank = 0; stats = freshStats(); stats.buyins = 0; stats.peak = 0; awards = {}; history = []; bet = 0; baseBet = 25;
+  newShoe(); animateBank(); renderBet(); renderStats(); renderAwards(); save(); ui();
+  closeSheet(); openBuyIn('reset');
+}
+
+/* ---------- buy-in ---------- */
+const buyins = () => stats.buyins ?? 1000 * (1 + (stats.refills || 0));
+function openBuyIn(reason){
+  if (phase === 'play' || busy) { toast('Finish this hand first'); return; }
+  $('buyTitle').textContent = reason === 'broke' ? 'Out of chips' : reason === 'reset' ? 'Fresh start' : 'Buy in';
+  $('buyLead').textContent = reason === 'broke' ? 'Buy back in to keep playing.' : reason === 'reset' ? 'Choose your starting bankroll.' : 'Pick how many chips to add to your bankroll.';
+  $('buyin').hidden = false; audio();
+  setTimeout(() => document.querySelector('.buy.best').focus(), 50);
+}
+function closeBuyIn(){ $('buyin').hidden = true; }
+function buyIn(v){
+  if (phase === 'play' || busy) return;
+  stats.buyins = buyins() + v; stats.refills = (stats.refills || 0) + 1;
+  if (phase === 'done') clearTable();
+  bank += v; stats.peak = Math.max(stats.peak, bank);
+  history.push(Math.round(bank * 100) / 100); if (history.length > 120) history.shift();
+  animateBank(); closeBuyIn();
+  if (!bet) bet = Math.max(5, Math.min(baseBet || 25, Math.floor(bank / settings.seats / 5) * 5));
+  if (bet * settings.seats > bank) bet = Math.floor(bank / settings.seats / 5) * 5;
+  renderBet(); save(); ui(); clack(); winSound(false); confetti(60); toast('Bought in · +' + fmt(v));
 }
 
 /* ---------- wiring ---------- */
@@ -1017,6 +1070,9 @@ document.querySelectorAll('#tab-settings [data-key]').forEach(g => {
   else g.querySelectorAll('button').forEach(b => b.onclick = () => setSetting(g.dataset.key, b.dataset.val));
 });
 $('reset').onclick = reset;
+document.querySelectorAll('.buy').forEach(b => b.onclick = () => buyIn(+b.dataset.v));
+$('buyCancel').onclick = closeBuyIn; $('buyScrim').onclick = closeBuyIn;
+$('buyOpen').onclick = () => { if (phase === 'play' || busy) { toast('Finish this hand first'); return; } closeSheet(); openBuyIn('menu'); };
 $('bonus').onclick = () => {
   if (lastBonus === today()) return;
   lastBonus = today(); bank += 250; stats.peak = Math.max(stats.peak, bank); animateBank(); save();
@@ -1024,6 +1080,7 @@ $('bonus').onclick = () => {
   renderBet(); ui(); winSound(false); confetti(60); toast('Daily bonus · +$250');
 };
 addEventListener('keydown', e => {
+  if (!$('buyin').hidden) { if (e.key === 'Escape') closeBuyIn(); else if (e.key === '1') buyIn(500); else if (e.key === '2') buyIn(1000); else if (e.key === '3') buyIn(5000); return; }
   if (!$('sheet').hidden) { if (e.key === 'Escape') closeSheet(); return; }
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   if (e.target.tagName === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return;
